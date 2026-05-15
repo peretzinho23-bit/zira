@@ -62,8 +62,8 @@ async function callGemini(cat) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: buildPrompt(cat) }] }],
-      generationConfig: { temperature: 0.95, responseMimeType: 'application/json' },
-    }),
+      generationConfig: { temperature: 0.95 }
+    })
   })
   if (!res.ok) {
     const msg = await res.text().catch(() => res.statusText)
