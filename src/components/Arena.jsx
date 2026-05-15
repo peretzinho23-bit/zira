@@ -25,7 +25,7 @@ const MAX_STRIKES  = 3
 const REVEAL_MS    = 1300
 const CHARS        = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
 const GEMINI_KEY   = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
+const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
 const gProvider    = new GoogleAuthProvider()
 
 const CATEGORIES = [
@@ -379,7 +379,7 @@ function BotGame({ category, user, onExit }) {
     if (turn !== 'bot' || !questions || reveal || phase !== 'playing' || result) return
     setBotThinking(true)
 
-    const delay = 3000 + Math.random() * 4000  // 3–7 seconds
+    const delay = 3000 + Math.random() * 2000  // 3–5 seconds
     const t = setTimeout(() => {
       setBotThinking(false)
       if (processingRef.current || result) return
@@ -387,15 +387,12 @@ function BotGame({ category, user, onExit }) {
       const q    = questions[qIdx]
       const rand = Math.random()
 
-      if (rand < 0.10) {
-        // Skip (10%)
-        handleBotSkip()
-      } else if (rand < 0.40) {
+      if (rand < 0.30) {
         // Wrong answer (30%)
         const wrong = q.options.filter(o => o !== q.correct)
         handleBotAnswer(wrong[Math.floor(Math.random() * wrong.length)], q)
       } else {
-        // Correct (60%)
+        // Correct (70%)
         handleBotAnswer(q.correct, q)
       }
     }, delay)

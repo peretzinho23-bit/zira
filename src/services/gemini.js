@@ -1,6 +1,6 @@
 const GEMINI_API_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
 const GEMINI_MODEL   = 'gemini-1.5-flash'
-const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
+const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
 
 // Explicit prompt with example — more reliable than responseSchema for arrays
 const PROMPT = `Generate exactly 10 Hebrew trivia questions from 10 different topics.
