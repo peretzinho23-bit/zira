@@ -60,14 +60,14 @@ Start your response with [ and end with ].`
 async function callGemini(cat) {
   const ai = new GoogleGenAI({ apiKey: GEMINI_KEY })
   const res = await ai.models.generateContent({
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-2.5-flash-lite',
     contents: buildPrompt(cat),
     config: {
       temperature: 0.9,
       responseMimeType: "application/json"
     }
   })
-  
+
   const text = res.text || ''
 
   let raw
