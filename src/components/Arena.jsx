@@ -65,7 +65,8 @@ async function fillPoolBackground() {
       } catch (e) {
         // fail silently in background
       }
-      await new Promise(r => setTimeout(r, 2000));
+      // Wait 12 seconds between background requests to avoid hitting the 15 RPM limit
+      await new Promise(r => setTimeout(r, 12000));
     }
   }
   isGeneratingBackground = false;
