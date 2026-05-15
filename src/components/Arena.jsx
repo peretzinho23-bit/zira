@@ -25,7 +25,7 @@ const MAX_STRIKES = 3
 const REVEAL_MS = 1300
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
 const GEMINI_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
 
 const gProvider = new GoogleAuthProvider()
 
@@ -62,7 +62,7 @@ async function callGemini(cat) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: buildPrompt(cat) }] }],
-      generationConfig: { temperature: 0.95 }
+      generationConfig: { temperature: 0.95, responseMimeType: "application/json" }
     })
   })
   if (!res.ok) {
