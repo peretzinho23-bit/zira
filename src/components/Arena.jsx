@@ -25,8 +25,8 @@ const SKIP_PENALTY = 3
 const MAX_STRIKES = 3
 const REVEAL_MS = 1300
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-const KEY_PART1 = 'AIzaSyCBBsa3DSi'
-const KEY_PART2 = 'GyGPjsiUEUxnwCu7MVw7AIeY'
+const KEY_PART1 = 'AIzaSyAJhL3KJRvk'
+const KEY_PART2 = 'Et0o0sDmobzdH5zJ5E18PFg'
 const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY || (KEY_PART1 + KEY_PART2)
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_KEY}`
 
@@ -72,8 +72,8 @@ async function fillPoolBackground() {
   isGeneratingBackground = false;
 }
 
-// Start prefetching immediately
-fillPoolBackground();
+// Start prefetching only when actually requested
+// fillPoolBackground();
 
 function buildPrompt(cat) {
   const topic = cat === 'מגוון'
@@ -306,8 +306,7 @@ function GeneratingView() {
 
   useEffect(() => {
     const t = setInterval(() => setTime(s => s + 1), 1000)
-    // Also trigger background fill just in case
-    fillPoolBackground()
+    // No background trigger to avoid quota limits
     return () => clearInterval(t)
   }, [])
 
