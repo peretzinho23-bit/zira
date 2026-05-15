@@ -79,12 +79,10 @@ function buildPrompt(cat) {
   const topic = cat === 'מגוון'
     ? 'diverse topics: geography, sports, history, science, cinema, music, art, technology, nature, literature'
     : `the topic: ${cat}`
-  return `Generate exactly 10 Hebrew trivia questions about ${topic}.
-Each question must have exactly 4 answer choices and ONE correct answer.
-Return ONLY a raw JSON array. No markdown. No code fences. No extra text.
-Format of each element:
-{"topic":"<topic in Hebrew>","question":"<question in Hebrew>","options":["choice1","choice2","choice3","choice4"],"correctIndex":<0|1|2|3>}
-Start your response with [ and end with ].`
+  return `Generate 10 Hebrew trivia questions about ${topic}.
+Return ONLY a raw JSON array.
+Format:
+[{"topic":"<hebrew>","question":"<hebrew>","options":["1","2","3","4"],"correctIndex":<0-3>}]`
 }
 
 async function callGemini(cat) {
@@ -93,7 +91,7 @@ async function callGemini(cat) {
     model: 'gemini-2.5-flash-lite',
     contents: buildPrompt(cat),
     config: {
-      temperature: 0.9,
+      temperature: 0.7,
       responseMimeType: "application/json"
     }
   })
