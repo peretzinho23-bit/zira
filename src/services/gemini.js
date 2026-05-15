@@ -45,7 +45,7 @@ function validate(raw) {
 async function callGemini() {
   const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY })
   const response = await ai.models.generateContent({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-flash-latest',
     contents: PROMPT,
     config: {
       temperature: 0.9,
