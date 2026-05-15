@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCDRVjNyhgASiatOP-B8E7er_NWiIl2y0Q'
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
 // Explicit prompt with example — more reliable than responseSchema for arrays
 const PROMPT = `Generate exactly 10 Hebrew trivia questions from 10 different topics.
