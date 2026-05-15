@@ -19,21 +19,22 @@ import { useAuth } from '../context/AuthContext'
 
 // ─────────────────────────────────── Constants ────────────────────────────────
 
-const TIMER_START  = 45
+const TIMER_START = 45
 const SKIP_PENALTY = 3
-const MAX_STRIKES  = 3
-const REVEAL_MS    = 1300
-const CHARS        = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-const GEMINI_KEY   = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
-const gProvider    = new GoogleAuthProvider()
+const MAX_STRIKES = 3
+const REVEAL_MS = 1300
+const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+const GEMINI_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${AIzaSyAS5ORmG9Q - at3K1RaOEofBn5m - Qnm9CfY}`
+
+const gProvider = new GoogleAuthProvider()
 
 const CATEGORIES = [
-  { id: 'מגוון',      emoji: '🎲' },
-  { id: 'ספורט',     emoji: '⚽' },
-  { id: 'היסטוריה',  emoji: '📜' },
-  { id: 'מדע',       emoji: '🔬' },
-  { id: 'בידור',     emoji: '🎬' },
+  { id: 'מגוון', emoji: '🎲' },
+  { id: 'ספורט', emoji: '⚽' },
+  { id: 'היסטוריה', emoji: '📜' },
+  { id: 'מדע', emoji: '🔬' },
+  { id: 'בידור', emoji: '🎬' },
   { id: 'גיאוגרפיה', emoji: '🌍' },
 ]
 
@@ -80,13 +81,13 @@ async function callGemini(cat) {
   if (!Array.isArray(raw) || raw.length < 5) throw new Error(`Too few questions: ${raw?.length}`)
 
   return raw.slice(0, 10).map((q, i) => ({
-    id:           i + 1,
-    topic:        q.topic        ?? `נושא ${i + 1}`,
-    category:     q.topic        ?? `נושא ${i + 1}`,
-    question:     q.question     ?? '',
-    options:      Array.isArray(q.options) ? q.options.slice(0, 4) : [],
+    id: i + 1,
+    topic: q.topic ?? `נושא ${i + 1}`,
+    category: q.topic ?? `נושא ${i + 1}`,
+    question: q.question ?? '',
+    options: Array.isArray(q.options) ? q.options.slice(0, 4) : [],
     correctIndex: Number(q.correctIndex ?? 0),
-    correct:      (q.options ?? [])[q.correctIndex] ?? '',
+    correct: (q.options ?? [])[q.correctIndex] ?? '',
   }))
 }
 
@@ -112,9 +113,9 @@ function genCode() {
 function mkPlayer(user) {
   return {
     displayName: user.displayName || 'שחקן',
-    photoURL:    user.photoURL    || null,
-    timeLeft:    TIMER_START,
-    strikes:     0,
+    photoURL: user.photoURL || null,
+    timeLeft: TIMER_START,
+    strikes: 0,
     isAnonymous: !!user.isAnonymous,
   }
 }
@@ -128,7 +129,7 @@ async function joinOrCreatePublic(user) {
       if (room?.status === 'waiting' && !room.players?.[user.uid] && Object.keys(room.players ?? {}).length < 2) {
         await update(ref(rtdb), {
           [`rooms/${roomId}/players/${user.uid}`]: mkPlayer(user),
-          [`publicQueue/${roomId}`]:               null,
+          [`publicQueue/${roomId}`]: null,
         })
         return roomId
       }
@@ -148,7 +149,7 @@ async function joinOrCreatePublic(user) {
 }
 
 async function createPrivateRoom(user, category) {
-  const code   = genCode()
+  const code = genCode()
   const roomId = push(ref(rtdb, 'rooms')).key
   await update(ref(rtdb), {
     [`rooms/${roomId}`]: {
@@ -163,16 +164,16 @@ async function createPrivateRoom(user, category) {
 }
 
 async function joinPrivateRoom(codeRaw, user) {
-  const code  = codeRaw.trim().toUpperCase()
+  const code = codeRaw.trim().toUpperCase()
   const cSnap = await get(ref(rtdb, `roomCodes/${code}`))
   if (!cSnap.exists()) throw new Error('קוד חדר לא נמצא')
   const roomId = cSnap.val()
-  const rSnap  = await get(ref(rtdb, `rooms/${roomId}`))
-  const room   = rSnap.val()
-  if (!room)                                        throw new Error('החדר לא קיים')
-  if (room.status !== 'waiting')                    throw new Error('המשחק כבר התחיל')
-  if (Object.keys(room.players ?? {}).length >= 2)  throw new Error('החדר מלא')
-  if (room.players?.[user.uid])                     return roomId
+  const rSnap = await get(ref(rtdb, `rooms/${roomId}`))
+  const room = rSnap.val()
+  if (!room) throw new Error('החדר לא קיים')
+  if (room.status !== 'waiting') throw new Error('המשחק כבר התחיל')
+  if (Object.keys(room.players ?? {}).length >= 2) throw new Error('החדר מלא')
+  if (room.players?.[user.uid]) return roomId
   await update(ref(rtdb, `rooms/${roomId}/players/${user.uid}`), mkPlayer(user))
   return roomId
 }
@@ -180,7 +181,7 @@ async function joinPrivateRoom(codeRaw, user) {
 async function cleanupRoom(roomId, code, uid) {
   const u = { [`rooms/${roomId}/players/${uid}`]: null, [`publicQueue/${roomId}`]: null }
   if (code) u[`roomCodes/${code}`] = null
-  await update(ref(rtdb), u).catch(() => {})
+  await update(ref(rtdb), u).catch(() => { })
 }
 
 // ────────────────────────────── Shared UI ─────────────────────────────────────
@@ -222,15 +223,15 @@ function Avatar({ photoURL, name, size = 'sm', ring = 'border-arena-neon' }) {
 }
 
 function TimerRing({ secs, max = TIMER_START, active, px = 68 }) {
-  const r  = (px - 8) / 2
+  const r = (px - 8) / 2
   const cf = 2 * Math.PI * r
   const pct = Math.max(0, Math.min(1, secs / max))
   const color = secs > 15 ? '#a855f7' : secs > 7 ? '#f59e0b' : '#ef4444'
   return (
     <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: px, height: px }}>
       <svg width={px} height={px} className="absolute -rotate-90">
-        <circle cx={px/2} cy={px/2} r={r} fill="none" stroke="#1e1e2e" strokeWidth={5} />
-        <circle cx={px/2} cy={px/2} r={r} fill="none" stroke={color} strokeWidth={5} strokeLinecap="round"
+        <circle cx={px / 2} cy={px / 2} r={r} fill="none" stroke="#1e1e2e" strokeWidth={5} />
+        <circle cx={px / 2} cy={px / 2} r={r} fill="none" stroke={color} strokeWidth={5} strokeLinecap="round"
           strokeDasharray={cf} strokeDashoffset={cf * (1 - pct)}
           style={{ transition: 'stroke-dashoffset 0.12s linear,stroke 0.3s', filter: active ? `drop-shadow(0 0 5px ${color})` : 'none' }} />
       </svg>
@@ -248,11 +249,10 @@ function Strikes({ count, max = MAX_STRIKES }) {
         <motion.div key={i}
           animate={i === count - 1 && count > 0 ? { scale: [1, 1.4, 1] } : {}}
           transition={{ duration: 0.3 }}
-          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] font-black ${
-            i < count
-              ? 'bg-red-600 border-red-400 text-white shadow-[0_0_6px_rgba(239,68,68,0.5)]'
-              : 'bg-arena-bg border-arena-border text-gray-700'
-          }`}>
+          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] font-black ${i < count
+            ? 'bg-red-600 border-red-400 text-white shadow-[0_0_6px_rgba(239,68,68,0.5)]'
+            : 'bg-arena-bg border-arena-border text-gray-700'
+            }`}>
           {i < count ? '✕' : '○'}
         </motion.div>
       ))}
@@ -297,10 +297,10 @@ function GeneratingView() {
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
     </svg>
   )
 }
@@ -320,22 +320,22 @@ function WaitingDots({ label }) {
 const BOT_NAME = '🤖 הבוט'
 
 function BotGame({ category, user, onExit }) {
-  const [phase, setPhase]         = useState('loading')   // loading | playing | done
+  const [phase, setPhase] = useState('loading')   // loading | playing | done
   const [questions, setQuestions] = useState(null)
-  const [genErr, setGenErr]       = useState(null)
+  const [genErr, setGenErr] = useState(null)
 
   // Turn state
-  const [qIdx, setQIdx]               = useState(0)
-  const [turn, setTurn]               = useState('player')  // 'player' | 'bot'
-  const [playerStrikes, setPS]        = useState(0)
-  const [botStrikes, setBS]           = useState(0)
-  const [playerTimeBank, setPTB]      = useState(TIMER_START)
-  const [botTimeBank, setBTB]         = useState(TIMER_START)
+  const [qIdx, setQIdx] = useState(0)
+  const [turn, setTurn] = useState('player')  // 'player' | 'bot'
+  const [playerStrikes, setPS] = useState(0)
+  const [botStrikes, setBS] = useState(0)
+  const [playerTimeBank, setPTB] = useState(TIMER_START)
+  const [botTimeBank, setBTB] = useState(TIMER_START)
   const [turnStarted, setTurnStarted] = useState(Date.now())
   const [timerDisplay, setTimerDisplay] = useState({ player: TIMER_START, bot: TIMER_START })
-  const [reveal, setReveal]           = useState(null)
+  const [reveal, setReveal] = useState(null)
   const [botThinking, setBotThinking] = useState(false)
-  const [result, setResult]           = useState(null)  // 'player-win' | 'bot-win'
+  const [result, setResult] = useState(null)  // 'player-win' | 'bot-win'
 
   const processingRef = useRef(false)
 
@@ -351,12 +351,12 @@ function BotGame({ category, user, onExit }) {
     if (phase !== 'playing' || reveal || botThinking || result) return
 
     const activeTurn = turn
-    const startedAt  = turnStarted
-    const bank       = activeTurn === 'player' ? playerTimeBank : botTimeBank
+    const startedAt = turnStarted
+    const bank = activeTurn === 'player' ? playerTimeBank : botTimeBank
 
     const id = setInterval(() => {
-      const elapsed    = (Date.now() - startedAt) / 1000
-      const remaining  = Math.max(0, bank - elapsed)
+      const elapsed = (Date.now() - startedAt) / 1000
+      const remaining = Math.max(0, bank - elapsed)
       setTimerDisplay(prev => ({ ...prev, [activeTurn]: remaining }))
 
       if (remaining <= 0 && activeTurn === 'player' && !processingRef.current) {
@@ -384,7 +384,7 @@ function BotGame({ category, user, onExit }) {
       setBotThinking(false)
       if (processingRef.current || result) return
 
-      const q    = questions[qIdx]
+      const q = questions[qIdx]
       const rand = Math.random()
 
       if (rand < 0.30) {
@@ -423,10 +423,10 @@ function BotGame({ category, user, onExit }) {
     if (turn !== 'player' || reveal || phase !== 'playing' || processingRef.current) return
     processingRef.current = true
 
-    const q         = questions[qIdx]
+    const q = questions[qIdx]
     const isCorrect = selected === q.correct
-    const myRem     = calcRemaining('player', playerTimeBank, turnStarted)
-    let newPS       = playerStrikes
+    const myRem = calcRemaining('player', playerTimeBank, turnStarted)
+    let newPS = playerStrikes
 
     if (!isCorrect) {
       newPS = playerStrikes + 1
@@ -458,9 +458,9 @@ function BotGame({ category, user, onExit }) {
   }
 
   function handleBotAnswer(answer, q) {
-    const botRem    = calcRemaining('bot', botTimeBank, turnStarted)
+    const botRem = calcRemaining('bot', botTimeBank, turnStarted)
     const isCorrect = answer === q.correct
-    let newBS       = botStrikes
+    let newBS = botStrikes
 
     if (!isCorrect) {
       newBS = botStrikes + 1
@@ -561,9 +561,9 @@ function BotGame({ category, user, onExit }) {
   }
 
   // ── Active bot game ──
-  const q       = questions[qIdx]
+  const q = questions[qIdx]
   const isMyTurn = turn === 'player'
-  const OL       = ['א', 'ב', 'ג', 'ד']
+  const OL = ['א', 'ב', 'ג', 'ד']
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-arena-bg flex flex-col">
@@ -578,7 +578,7 @@ function BotGame({ category, user, onExit }) {
         <div className="flex items-center justify-around max-w-md mx-auto">
           {[
             { key: 'player', label: user?.displayName ?? 'אתה', photo: user?.photoURL, strikes: playerStrikes, time: timerDisplay.player },
-            { key: 'bot',    label: BOT_NAME,                   photo: null,           strikes: botStrikes,    time: timerDisplay.bot },
+            { key: 'bot', label: BOT_NAME, photo: null, strikes: botStrikes, time: timerDisplay.bot },
           ].map((p, i, arr) => (
             <React.Fragment key={p.key}>
               <div className={`flex flex-col items-center gap-1.5 transition-opacity duration-300 ${turn === p.key ? 'opacity-100' : 'opacity-45'}`}>
@@ -665,31 +665,31 @@ export default function Arena() {
   const { user } = useAuth()
 
   // ── View state ──
-  const [view,      setView]      = useState(null)  // null=init, 'nickname', 'lobby', 'bot', 'game'
-  const [roomId,    setRoomId]    = useState(null)
-  const [room,      setRoom]      = useState(null)
-  const [category,  setCategory]  = useState('מגוון')
+  const [view, setView] = useState(null)  // null=init, 'nickname', 'lobby', 'bot', 'game'
+  const [roomId, setRoomId] = useState(null)
+  const [room, setRoom] = useState(null)
+  const [category, setCategory] = useState('מגוון')
 
   // ── Nickname screen ──
-  const [nick,      setNick]      = useState('')
-  const [nickErr,   setNickErr]   = useState('')
-  const [nickBusy,  setNickBusy]  = useState(false)
+  const [nick, setNick] = useState('')
+  const [nickErr, setNickErr] = useState('')
+  const [nickBusy, setNickBusy] = useState(false)
 
   // ── Lobby state ──
-  const [lobbyTab,  setLobbyTab]  = useState('main')  // 'main'|'join'
-  const [joinCode,  setJoinCode]  = useState('')
-  const [lobbyErr,  setLobbyErr]  = useState('')
+  const [lobbyTab, setLobbyTab] = useState('main')  // 'main'|'join'
+  const [joinCode, setJoinCode] = useState('')
+  const [lobbyErr, setLobbyErr] = useState('')
   const [lobbyBusy, setLobbyBusy] = useState(false)
 
   // ── Game state ──
-  const [timers, setTimers]   = useState({})
-  const [reveal, setReveal]   = useState(null)
-  const processingRef         = useRef(false)
-  const generatingRef         = useRef(false)
-  const roomRef               = useRef(null)
-  const roomIdRef             = useRef(null)
+  const [timers, setTimers] = useState({})
+  const [reveal, setReveal] = useState(null)
+  const processingRef = useRef(false)
+  const generatingRef = useRef(false)
+  const roomRef = useRef(null)
+  const roomIdRef = useRef(null)
 
-  useEffect(() => { roomRef.current   = room   }, [room])
+  useEffect(() => { roomRef.current = room }, [room])
   useEffect(() => { roomIdRef.current = roomId }, [roomId])
 
   // ── Decide initial view once user is ready ──
@@ -722,7 +722,7 @@ export default function Arena() {
     if (generatingRef.current) return
     generatingRef.current = true
 
-    const uids      = Object.keys(room.players)
+    const uids = Object.keys(room.players)
     const firstTurn = uids[Math.floor(Math.random() * uids.length)]  // Ziri
 
     update(ref(rtdb, `rooms/${roomId}`), { status: 'generating' })
@@ -742,13 +742,13 @@ export default function Arena() {
       return
     }
     const activeTurn = room.currentTurn
-    const turnStart  = room.turnStarted
-    const snapshot   = {}
+    const turnStart = room.turnStarted
+    const snapshot = {}
     Object.entries(room.players).forEach(([u, d]) => { snapshot[u] = d.timeLeft })
 
     const id = setInterval(() => {
       const elapsed = (Date.now() - turnStart) / 1000
-      const next    = {}
+      const next = {}
       Object.keys(snapshot).forEach(u => {
         next[u] = u === activeTurn ? Math.max(0, snapshot[u] - elapsed) : snapshot[u]
       })
@@ -780,11 +780,11 @@ export default function Arena() {
     if (r.currentTurn !== user?.uid) return
     processingRef.current = true
 
-    const elapsed     = (Date.now() - r.turnStarted) / 1000
+    const elapsed = (Date.now() - r.turnStarted) / 1000
     const myRemaining = Math.max(0, (r.players[user.uid]?.timeLeft ?? TIMER_START) - elapsed)
-    const opp         = Object.keys(r.players).find(u => u !== user.uid)
-    const question    = r.questions[r.currentQuestionIndex]
-    const isCorrect   = selectedOption !== null && selectedOption === question.correct
+    const opp = Object.keys(r.players).find(u => u !== user.uid)
+    const question = r.questions[r.currentQuestionIndex]
+    const isCorrect = selectedOption !== null && selectedOption === question.correct
 
     if (myRemaining <= 0) {
       await update(ref(rtdb, `rooms/${rid}`), { winner: opp, status: 'finished' }).catch(console.error)
@@ -807,15 +807,15 @@ export default function Arena() {
       const nextIdx = r.currentQuestionIndex + 1
       if (nextIdx >= r.questions.length) {
         const oppTime = r.players[opp]?.timeLeft ?? 0
-        const winner  = myRemaining >= oppTime ? user.uid : opp
+        const winner = myRemaining >= oppTime ? user.uid : opp
         await update(ref(rtdb, `rooms/${rid}`), { winner, status: 'finished' }).catch(console.error)
         return
       }
       await update(ref(rtdb), {
-        [`rooms/${rid}/currentTurn`]:                    opp,
-        [`rooms/${rid}/turnStarted`]:                    Date.now(),
-        [`rooms/${rid}/currentQuestionIndex`]:           nextIdx,
-        [`rooms/${rid}/players/${user.uid}/timeLeft`]:   myRemaining,
+        [`rooms/${rid}/currentTurn`]: opp,
+        [`rooms/${rid}/turnStarted`]: Date.now(),
+        [`rooms/${rid}/currentQuestionIndex`]: nextIdx,
+        [`rooms/${rid}/players/${user.uid}/timeLeft`]: myRemaining,
       }).catch(err => { console.error(err); processingRef.current = false })
     }, REVEAL_MS)
   }, [user?.uid])
@@ -826,9 +826,9 @@ export default function Arena() {
     if (r.currentTurn !== user?.uid) return
     processingRef.current = true
 
-    const elapsed      = (Date.now() - r.turnStarted) / 1000
+    const elapsed = (Date.now() - r.turnStarted) / 1000
     const afterPenalty = Math.max(0, (r.players[user.uid]?.timeLeft ?? TIMER_START) - elapsed - SKIP_PENALTY)
-    const opp          = Object.keys(r.players).find(u => u !== user.uid)
+    const opp = Object.keys(r.players).find(u => u !== user.uid)
 
     if (afterPenalty <= 0) {
       await update(ref(rtdb, `rooms/${rid}`), { winner: opp, status: 'finished' }).catch(console.error)
@@ -837,15 +837,15 @@ export default function Arena() {
     const nextIdx = r.currentQuestionIndex + 1
     if (nextIdx >= r.questions.length) {
       const oppTime = r.players[opp]?.timeLeft ?? 0
-      const winner  = afterPenalty >= oppTime ? user.uid : opp
+      const winner = afterPenalty >= oppTime ? user.uid : opp
       await update(ref(rtdb, `rooms/${rid}`), { winner, status: 'finished' }).catch(console.error)
       return
     }
     await update(ref(rtdb), {
-      [`rooms/${rid}/currentTurn`]:                    opp,
-      [`rooms/${rid}/turnStarted`]:                    Date.now(),
-      [`rooms/${rid}/currentQuestionIndex`]:           nextIdx,
-      [`rooms/${rid}/players/${user.uid}/timeLeft`]:   afterPenalty,
+      [`rooms/${rid}/currentTurn`]: opp,
+      [`rooms/${rid}/turnStarted`]: Date.now(),
+      [`rooms/${rid}/currentQuestionIndex`]: nextIdx,
+      [`rooms/${rid}/players/${user.uid}/timeLeft`]: afterPenalty,
     }).catch(err => { console.error(err); processingRef.current = false })
   }, [user?.uid])
 
@@ -1021,11 +1021,10 @@ export default function Arena() {
               <div className="grid grid-cols-3 gap-2">
                 {CATEGORIES.map(cat => (
                   <motion.button key={cat.id} onClick={() => setCategory(cat.id)} whileTap={{ scale: 0.93 }}
-                    className={`rounded-xl py-2 px-1 text-xs font-bold transition-all flex flex-col items-center gap-1 ${
-                      category === cat.id
-                        ? 'bg-arena-neon/20 border-2 border-arena-neon text-arena-neon'
-                        : 'bg-arena-bg border border-arena-border text-gray-500 hover:border-arena-border/80'
-                    }`}>
+                    className={`rounded-xl py-2 px-1 text-xs font-bold transition-all flex flex-col items-center gap-1 ${category === cat.id
+                      ? 'bg-arena-neon/20 border-2 border-arena-neon text-arena-neon'
+                      : 'bg-arena-bg border border-arena-border text-gray-500 hover:border-arena-border/80'
+                      }`}>
                     <span className="text-lg leading-none">{cat.emoji}</span>
                     <span>{cat.id}</span>
                   </motion.button>
@@ -1077,9 +1076,8 @@ export default function Arena() {
                 <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   onClick={() => { setLobbyTab(t => t === 'join' ? 'main' : 'join'); setLobbyErr('') }}
                   disabled={lobbyBusy}
-                  className={`flex-1 border font-bold py-2.5 rounded-xl text-sm transition-all disabled:opacity-50 ${
-                    lobbyTab === 'join' ? 'bg-arena-cyan text-white border-arena-cyan' : 'text-gray-300 border-arena-border hover:border-arena-cyan'
-                  }`}>
+                  className={`flex-1 border font-bold py-2.5 rounded-xl text-sm transition-all disabled:opacity-50 ${lobbyTab === 'join' ? 'bg-arena-cyan text-white border-arena-cyan' : 'text-gray-300 border-arena-border hover:border-arena-cyan'
+                    }`}>
                   הצטרף
                 </motion.button>
               </div>
@@ -1156,10 +1154,10 @@ export default function Arena() {
 
   // ── Result ──────────────────────────────────────────────────────────────
   if (room.status === 'finished') {
-    const isWin      = room.winner === user?.uid
+    const isWin = room.winner === user?.uid
     const winnerData = room.players?.[room.winner]
-    const pList      = Object.entries(room.players ?? {})
-    const SPARKS     = ['🏆', '✨', '⭐', '🌟', '💫', '🎉']
+    const pList = Object.entries(room.players ?? {})
+    const SPARKS = ['🏆', '✨', '⭐', '🌟', '💫', '🎉']
 
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -1214,9 +1212,8 @@ export default function Arena() {
         <motion.button initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
           whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.93 }}
           onClick={goLobby}
-          className={`relative z-10 px-10 py-3 rounded-xl text-white font-black text-lg transition-all ${
-            isWin ? 'bg-arena-gold shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_32px_rgba(245,158,11,0.65)]' : 'bg-arena-neon shadow-neon'
-          }`}>
+          className={`relative z-10 px-10 py-3 rounded-xl text-white font-black text-lg transition-all ${isWin ? 'bg-arena-gold shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_32px_rgba(245,158,11,0.65)]' : 'bg-arena-neon shadow-neon'
+            }`}>
           חזרה ללובי
         </motion.button>
       </motion.div>
@@ -1225,10 +1222,10 @@ export default function Arena() {
 
   // ── Active multiplayer game ──────────────────────────────────────────────
   const { currentQuestionIndex, questions, players, currentTurn, isPrivate, code } = room
-  const pList    = Object.entries(players ?? {})
+  const pList = Object.entries(players ?? {})
   const currentQ = questions?.[currentQuestionIndex]
   const isMyTurn = currentTurn === user?.uid
-  const OL       = ['א', 'ב', 'ג', 'ד']
+  const OL = ['א', 'ב', 'ג', 'ד']
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-arena-bg flex flex-col">
@@ -1243,8 +1240,8 @@ export default function Arena() {
         <div className="flex items-center justify-around max-w-md mx-auto">
           {pList.map(([uid, data], idx) => {
             const isActive = uid === currentTurn
-            const isMe     = uid === user?.uid
-            const secs     = timers[uid] ?? data.timeLeft
+            const isMe = uid === user?.uid
+            const secs = timers[uid] ?? data.timeLeft
             return (
               <React.Fragment key={uid}>
                 <div className={`flex flex-col items-center gap-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-45'}`}>
