@@ -16,6 +16,7 @@ import { ref, get, push, update, onValue, remove } from 'firebase/database'
 import { GoogleAuthProvider, signInWithPopup, updateProfile } from 'firebase/auth'
 import { auth, rtdb } from '../firebase'
 import { useAuth } from '../context/AuthContext'
+import { GoogleGenAI } from '@google/genai'
 
 // ─────────────────────────────────── Constants ────────────────────────────────
 
@@ -57,20 +58,17 @@ Start your response with [ and end with ].`
 }
 
 async function callGemini(cat) {
-  const res = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: buildPrompt(cat) }] }],
-      generationConfig: { temperature: 0.95, responseMimeType: "application/json" }
-    })
+  const ai = new GoogleGenAI({ apiKey: GEMINI_KEY })
+  const res = await ai.models.generateContent({
+    model: 'gemini-1.5-flash',
+    contents: buildPrompt(cat),
+    config: {
+      temperature: 0.9,
+      responseMimeType: "application/json"
+    }
   })
-  if (!res.ok) {
-    const msg = await res.text().catch(() => res.statusText)
-    throw new Error(`Gemini ${res.status}: ${msg.slice(0, 160)}`)
-  }
-  const data = await res.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  
+  const text = res.text || ''
 
   let raw
   try { raw = JSON.parse(text.trim()) } catch {

@@ -1,6 +1,5 @@
+import { GoogleGenAI } from '@google/genai'
 const GEMINI_API_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_MODEL = 'gemini-1.5-flash-latest'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
 
 // Explicit prompt with example — more reliable than responseSchema for arrays
 const PROMPT = `Generate exactly 10 Hebrew trivia questions from 10 different topics.
@@ -44,25 +43,17 @@ function validate(raw) {
 }
 
 async function callGemini() {
-  const response = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: PROMPT }] }],
-      generationConfig: {
-        temperature: 0.9,
-        responseMimeType: 'application/json',
-      },
-    }),
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY })
+  const response = await ai.models.generateContent({
+    model: 'gemini-1.5-flash',
+    contents: PROMPT,
+    config: {
+      temperature: 0.9,
+      responseMimeType: 'application/json',
+    }
   })
 
-  if (!response.ok) {
-    const err = await response.text().catch(() => response.statusText)
-    throw new Error(`Gemini ${response.status}: ${err.slice(0, 200)}`)
-  }
-
-  const data = await response.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+  const text = response.text || ''
   if (!text) throw new Error('תגובה ריקה מ-Gemini')
 
   const raw = extractJSON(text)
