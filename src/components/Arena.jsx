@@ -25,7 +25,7 @@ const MAX_STRIKES = 3
 const REVEAL_MS = 1300
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
 const GEMINI_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${AIzaSyAS5ORmG9Q - at3K1RaOEofBn5m - Qnm9CfY}`
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`
 
 const gProvider = new GoogleAuthProvider()
 
