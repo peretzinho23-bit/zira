@@ -25,7 +25,7 @@ const SKIP_PENALTY = 3
 const MAX_STRIKES = 3
 const REVEAL_MS = 1300
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-const GEMINI_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
+const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCDRVjNyhgASiatOP-B8E7er_NWiIl2y0Q'
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_KEY}`
 
 const gProvider = new GoogleAuthProvider()
