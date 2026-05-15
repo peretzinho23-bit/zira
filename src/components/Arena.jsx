@@ -47,6 +47,33 @@ const LOADING_MSGS = [
 
 // ────────────────────────────────── Gemini ────────────────────────────────────
 
+const QUESTION_POOL = {
+  'מגוון': [], 'ספורט': [], 'היסטוריה': [], 'מדע': [], 'בידור': [], 'גיאוגרפיה': []
+}
+let isGeneratingBackground = false;
+
+async function fillPoolBackground() {
+  if (isGeneratingBackground) return;
+  isGeneratingBackground = true;
+  for (const cat of Object.keys(QUESTION_POOL)) {
+    if (QUESTION_POOL[cat].length < 10) {
+      try {
+        const q = await callGemini(cat);
+        if (Array.isArray(q) && q.length >= 10) {
+          QUESTION_POOL[cat] = [...QUESTION_POOL[cat], ...q];
+        }
+      } catch (e) {
+        // fail silently in background
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+  isGeneratingBackground = false;
+}
+
+// Start prefetching immediately
+fillPoolBackground();
+
 function buildPrompt(cat) {
   const topic = cat === 'מגוון'
     ? 'diverse topics: geography, sports, history, science, cinema, music, art, technology, nature, literature'
@@ -92,8 +119,19 @@ async function callGemini(cat) {
 }
 
 async function generateQuestions(cat = 'מגוון') {
+  if (QUESTION_POOL[cat] && QUESTION_POOL[cat].length >= 10) {
+    const q = QUESTION_POOL[cat].slice(0, 10);
+    QUESTION_POOL[cat] = QUESTION_POOL[cat].slice(10);
+    fillPoolBackground(); // trigger refill
+    return q;
+  }
+
   for (let attempt = 1; attempt <= 3; attempt++) {
-    try { return await callGemini(cat) }
+    try { 
+      const res = await callGemini(cat)
+      fillPoolBackground(); // trigger background prep for next time
+      return res;
+    }
     catch (err) {
       console.warn(`Gemini attempt ${attempt}:`, err.message)
       if (attempt < 3) await new Promise(r => setTimeout(r, 900 * attempt))
@@ -261,29 +299,48 @@ function Strikes({ count, max = MAX_STRIKES }) {
 }
 
 function GeneratingView() {
-  const [idx, setIdx] = useState(0)
+  const [score, setScore] = useState(0)
+  const [targetPos, setTargetPos] = useState({ x: 50, y: 50 })
+  const [time, setTime] = useState(0)
+
   useEffect(() => {
-    const t = setInterval(() => setIdx(i => (i + 1) % LOADING_MSGS.length), 1900)
+    const t = setInterval(() => setTime(s => s + 1), 1000)
+    // Also trigger background fill just in case
+    fillPoolBackground()
     return () => clearInterval(t)
   }, [])
+
+  const moveTarget = () => {
+    setTargetPos({ x: 15 + Math.random() * 70, y: 15 + Math.random() * 70 })
+    setScore(s => s + 1)
+  }
+
   return (
-    <div className="min-h-screen bg-arena-bg flex flex-col items-center justify-center px-4 gap-8">
-      <div className="relative w-28 h-28">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2.8, repeat: Infinity, ease: 'linear' }}
-          className="absolute inset-0 rounded-full border-4 border-t-arena-neon border-r-arena-neon border-b-transparent border-l-transparent" />
-        <motion.div animate={{ rotate: -360 }} transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }}
-          className="absolute inset-2.5 rounded-full border-2 border-b-arena-cyan border-l-arena-cyan border-t-transparent border-r-transparent" />
-        <div className="absolute inset-0 flex items-center justify-center text-3xl">⚔️</div>
+    <div className="min-h-screen bg-arena-bg flex flex-col items-center justify-center px-4 gap-4">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-black text-arena-neon" style={{ textShadow: '0 0 12px rgba(168,85,247,0.6)' }}>
+          מייצר שאלות...
+        </h2>
+        <p className="text-gray-400 mt-1">זמן המתנה: {time} שניות</p>
       </div>
-      <AnimatePresence mode="wait">
-        <motion.p key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}
-          className="text-xl font-bold text-arena-neon" style={{ textShadow: '0 0 12px rgba(168,85,247,0.6)' }}>
-          {LOADING_MSGS[idx]}
-        </motion.p>
-      </AnimatePresence>
-      <p className="text-gray-600 text-sm">הבינה המלאכותית מכינה שאלות ייחודיות</p>
-      <div className="flex gap-2">
+      
+      <p className="text-arena-gold font-bold text-sm">בינתיים, תפוס את המטרה!</p>
+      
+      <div className="relative w-full max-w-sm h-64 bg-arena-surface border-2 border-arena-border rounded-xl overflow-hidden cursor-crosshair">
+        <div className="absolute top-3 left-4 text-arena-cyan font-black bg-black/40 px-3 py-1 rounded-full text-sm">
+          ניקוד: {score}
+        </div>
+        <motion.div
+          onPointerDown={moveTarget}
+          animate={{ left: \`\${targetPos.x}%\`, top: \`\${targetPos.y}%\` }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="absolute w-12 h-12 -ml-6 -mt-6 bg-arena-neon rounded-full flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(168,85,247,0.8)] cursor-pointer select-none touch-none"
+        >
+          🎯
+        </motion.div>
+      </div>
+      
+      <div className="flex gap-2 mt-4">
         {[0, 1, 2].map(i => (
           <motion.div key={i} animate={{ scale: [1, 1.6, 1], opacity: [0.3, 1, 0.3] }}
             transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.22 }}
