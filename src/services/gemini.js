@@ -1,6 +1,6 @@
 const GEMINI_API_KEY = 'AIzaSyAS5ORmG9Q-at3K1RaOEofBn5m-Qnm9CfY'
-const GEMINI_MODEL   = 'gemini-1.5-flash'
-const GEMINI_URL     = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
+const GEMINI_MODEL = 'gemini-1.5-flash'
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
 
 // Explicit prompt with example — more reliable than responseSchema for arrays
 const PROMPT = `Generate exactly 10 Hebrew trivia questions from 10 different topics.
@@ -16,16 +16,16 @@ Respond with NOTHING except the JSON array starting with [ and ending with ].`
 
 function extractJSON(text) {
   // Try direct parse first
-  try { return JSON.parse(text.trim()) } catch {}
+  try { return JSON.parse(text.trim()) } catch { }
 
   // Strip markdown code fences if present
   const stripped = text.replace(/```json?\s*/gi, '').replace(/```\s*/g, '').trim()
-  try { return JSON.parse(stripped) } catch {}
+  try { return JSON.parse(stripped) } catch { }
 
   // Extract first [...] block
   const match = text.match(/\[[\s\S]*\]/)
   if (match) {
-    try { return JSON.parse(match[0]) } catch {}
+    try { return JSON.parse(match[0]) } catch { }
   }
 
   throw new Error('לא ניתן לפרסר JSON מ-Gemini')
@@ -75,13 +75,13 @@ export async function generateQuestions() {
     try {
       const raw = await callGemini()
       return raw.slice(0, 10).map((q, i) => ({
-        id:           i + 1,
-        topic:        q.topic   || `נושא ${i + 1}`,
-        category:     q.topic   || `נושא ${i + 1}`,
-        question:     q.question,
-        options:      q.options,
+        id: i + 1,
+        topic: q.topic || `נושא ${i + 1}`,
+        category: q.topic || `נושא ${i + 1}`,
+        question: q.question,
+        options: q.options,
         correctIndex: q.correctIndex,
-        correct:      q.options[q.correctIndex],
+        correct: q.options[q.correctIndex],
       }))
     } catch (err) {
       lastError = err
