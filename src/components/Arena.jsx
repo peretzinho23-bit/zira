@@ -332,7 +332,7 @@ function GeneratingView() {
         </div>
         <motion.div
           onPointerDown={moveTarget}
-          animate={{ left: \`\${targetPos.x}%\`, top: \`\${targetPos.y}%\` }}
+          animate={{ left: `${targetPos.x}%`, top: `${targetPos.y}%` }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           className="absolute w-12 h-12 -ml-6 -mt-6 bg-arena-neon rounded-full flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(168,85,247,0.8)] cursor-pointer select-none touch-none"
         >
