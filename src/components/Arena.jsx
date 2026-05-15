@@ -74,6 +74,26 @@ async function fillPoolBackground() {
 // Start prefetching immediately
 fillPoolBackground();
 
+function speakText(text, isMuted) {
+  if (isMuted || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'he-IL';
+  utterance.rate = 1.05;
+  window.speechSynthesis.speak(utterance);
+}
+
+function useMute() {
+  const [isMuted, setIsMuted] = useState(() => localStorage.getItem('arena_muted') === 'true');
+  const toggleMute = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    localStorage.setItem('arena_muted', next.toString());
+    if (next) window.speechSynthesis?.cancel();
+  };
+  return { isMuted, toggleMute };
+}
+
 function buildPrompt(cat) {
   const topic = cat === 'מגוון'
     ? 'diverse topics: geography, sports, history, science, cinema, music, art, technology, nature, literature'
@@ -394,6 +414,7 @@ function BotGame({ category, user, onExit }) {
   const [botThinking, setBotThinking] = useState(false)
   const [result, setResult] = useState(null)  // 'player-win' | 'bot-win'
 
+  const { isMuted, toggleMute } = useMute()
   const processingRef = useRef(false)
 
   // ── Load questions ──
@@ -430,6 +451,13 @@ function BotGame({ category, user, onExit }) {
     }, 100)
     return () => clearInterval(id)
   }, [turn, turnStarted, phase, reveal, botThinking, result]) // eslint-disable-line
+
+  // ── Speech Synthesis ──
+  useEffect(() => {
+    if (phase === 'playing' && questions && questions[qIdx]) {
+      speakText(questions[qIdx].question, isMuted)
+    }
+  }, [qIdx, phase])
 
   // ── Bot AI ──
   useEffect(() => {
@@ -626,7 +654,12 @@ function BotGame({ category, user, onExit }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-arena-bg flex flex-col">
       <header className="border-b border-arena-border px-4 py-2.5 flex items-center justify-between flex-shrink-0">
         <span className="text-gray-600 text-xs">שאלה {qIdx + 1}/{questions.length}</span>
-        <h1 className="text-base font-black text-arena-neon">🤖 נגד הבוט</h1>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleMute} className="text-xl opacity-80 hover:opacity-100 transition-opacity" title="השתק/הפעל קריינות">
+            {isMuted ? '🔇' : '🔊'}
+          </button>
+          <h1 className="text-base font-black text-arena-neon">🤖 נגד הבוט</h1>
+        </div>
         <button onClick={onExit} className="text-gray-600 hover:text-red-400 text-xs transition-colors">✕ יציאה</button>
       </header>
 
@@ -741,6 +774,7 @@ export default function Arena() {
   // ── Game state ──
   const [timers, setTimers] = useState({})
   const [reveal, setReveal] = useState(null)
+  const { isMuted, toggleMute } = useMute()
   const processingRef = useRef(false)
   const generatingRef = useRef(false)
   const roomRef = useRef(null)
@@ -876,6 +910,14 @@ export default function Arena() {
       }).catch(err => { console.error(err); processingRef.current = false })
     }, REVEAL_MS)
   }, [user?.uid])
+
+  // ── Speech Synthesis ──
+  useEffect(() => {
+    if (room?.status === 'active' && room?.questions) {
+      const q = room.questions[room.currentQuestionIndex]
+      if (q) speakText(q.question, isMuted)
+    }
+  }, [room?.currentQuestionIndex, room?.status])
 
   const handleSkip = useCallback(async () => {
     const r = roomRef.current; const rid = roomIdRef.current
@@ -1288,7 +1330,12 @@ export default function Arena() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-arena-bg flex flex-col">
       <header className="border-b border-arena-border px-4 py-2.5 flex items-center justify-between flex-shrink-0">
         <span className="text-gray-600 text-xs">שאלה {(currentQuestionIndex ?? 0) + 1}/{questions?.length ?? 10}</span>
-        <h1 className="text-base font-black text-arena-neon">⚔️ הזירה</h1>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleMute} className="text-xl opacity-80 hover:opacity-100 transition-opacity" title="השתק/הפעל קריינות">
+            {isMuted ? '🔇' : '🔊'}
+          </button>
+          <h1 className="text-base font-black text-arena-neon">⚔️ הזירה</h1>
+        </div>
         <span className="text-gray-700 text-xs">{isPrivate ? `🔐 ${code}` : '🌐 אקראי'}</span>
       </header>
 
