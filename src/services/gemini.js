@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai'
-const KEY_PART1 = 'AIzaSyAJhL3KJRvk'
-const KEY_PART2 = 'Et0o0sDmobzdH5zJ5E18PFg'
+const KEY_PART1 = 'AIzaSyAtcZoU4Rgs'
+const KEY_PART2 = 'oS9rODlPEsySVEmREnATbf4'
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || (KEY_PART1 + KEY_PART2)
 
 // Explicit prompt with example — more reliable than responseSchema for arrays

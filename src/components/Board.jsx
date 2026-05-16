@@ -206,7 +206,7 @@ function DuelGenerating() {
 const BOT_ACCURACY = { 'קל': 0.45, 'בינוני': 0.65, 'קשה': 0.82 }
 const BOT_NAME     = '🤖 שומר הטריטוריה'
 
-function BoardDuel({ topic, difficulty, user, onComplete }) {
+export function BoardDuel({ topic, difficulty, user, onComplete }) {
   const accuracy = BOT_ACCURACY[difficulty] ?? 0.65
 
   const [phase,         setPhase]         = useState('loading')

@@ -18,6 +18,7 @@ import { auth, rtdb } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import { GoogleGenAI } from '@google/genai'
 import Board from './Board'
+import BoardMulti from './BoardMulti'
 
 // ─────────────────────────────────── Constants ────────────────────────────────
 
@@ -1039,8 +1040,13 @@ export default function Arena() {
     )
   }
 
-  // ── Board game ─────────────────────────────────────────────────────────────
+  // ── Board game — multiplayer (main mode) ────────────────────────────────────
   if (view === 'board') {
+    return <BoardMulti user={user} onExit={goLobby} />
+  }
+
+  // ── Board solo (practice vs bots, no Firebase) ───────────────────────────────
+  if (view === 'board-solo') {
     return <Board user={user} onExit={goLobby} />
   }
 
@@ -1160,28 +1166,49 @@ export default function Arena() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Board conquest game */}
-            <motion.button initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.26 }}
-              onClick={() => setView('board')}
-              whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
-              className="w-full bg-arena-surface border-2 border-arena-neon rounded-2xl p-4 flex items-center gap-4 hover:shadow-neon transition-all cursor-pointer">
-              <span className="text-4xl flex-shrink-0">🗺️</span>
-              <div className="flex-1 text-right">
-                <p className="text-arena-neon font-black text-lg leading-tight">כיבוש הזירה</p>
-                <p className="text-gray-500 text-xs mt-0.5">לוח 5×5 · תקוף טריטוריות · כבוש הכל</p>
-              </div>
-              <span className="text-arena-neon text-xs font-bold flex-shrink-0">חדש ✨</span>
-            </motion.button>
+            {/* ══ Board — MAIN MODE ══ */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}
+              className="bg-arena-surface border-2 border-arena-neon rounded-2xl p-4 hover:shadow-neon transition-all"
+              style={{ boxShadow: '0 0 0 1px rgba(168,85,247,0.15)' }}>
 
-            {/* Bot game */}
+              {/* Title row */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-4xl flex-shrink-0">🗺️</span>
+                <div className="flex-1 text-right">
+                  <p className="text-arena-neon font-black text-lg leading-tight">כיבוש הזירה</p>
+                  <p className="text-gray-500 text-xs">לוח 5×5 · כבוש 13 טריטוריות · בוטים + שחקנים</p>
+                </div>
+                <span className="text-arena-neon text-[10px] font-black bg-arena-neon/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                  מרכזי
+                </span>
+              </div>
+
+              {/* Two sub-buttons */}
+              <div className="grid grid-cols-2 gap-2">
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
+                  onClick={() => setView('board')}
+                  className="bg-arena-neon/10 border border-arena-neon text-arena-neon font-black py-2.5 rounded-xl text-sm hover:bg-arena-neon/20 transition-all flex items-center justify-center gap-1.5">
+                  <span>🌐</span>
+                  <span>מולטיפלייר</span>
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
+                  onClick={() => setView('board-solo')}
+                  className="bg-arena-bg border border-arena-border text-gray-300 font-bold py-2.5 rounded-xl text-sm hover:border-arena-neon/50 transition-all flex items-center justify-center gap-1.5">
+                  <span>🤖</span>
+                  <span>אימון סולו</span>
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Bot 1v1 duel */}
             <motion.button initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.34 }}
               onClick={() => setView('bot')}
               whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
               className="w-full bg-arena-surface border-2 border-arena-gold rounded-2xl p-4 flex items-center gap-4 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all cursor-pointer">
-              <span className="text-4xl flex-shrink-0">🤖</span>
+              <span className="text-4xl flex-shrink-0">⚔️</span>
               <div className="flex-1 text-right">
-                <p className="text-arena-gold font-black text-lg leading-tight">אימון נגד בוט</p>
-                <p className="text-gray-500 text-xs mt-0.5">תרגל בדו-קרב נגד המחשב</p>
+                <p className="text-arena-gold font-black text-lg leading-tight">דו-קרב מהיר</p>
+                <p className="text-gray-500 text-xs mt-0.5">45 שניות · 3 פסילות · 1v1 נגד בוט</p>
               </div>
               <span className="text-gray-600 flex-shrink-0">←</span>
             </motion.button>
