@@ -17,6 +17,7 @@ import { GoogleAuthProvider, signInWithPopup, updateProfile } from 'firebase/aut
 import { auth, rtdb } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import { GoogleGenAI } from '@google/genai'
+import Board from './Board'
 
 // ─────────────────────────────────── Constants ────────────────────────────────
 
@@ -1038,6 +1039,11 @@ export default function Arena() {
     )
   }
 
+  // ── Board game ─────────────────────────────────────────────────────────────
+  if (view === 'board') {
+    return <Board user={user} onExit={goLobby} />
+  }
+
   // ── Bot game ───────────────────────────────────────────────────────────────
   if (view === 'bot') {
     return <BotGame category={category} user={user} onExit={() => setView('lobby')} />
@@ -1154,8 +1160,21 @@ export default function Arena() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Bot game */}
+            {/* Board conquest game */}
             <motion.button initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.26 }}
+              onClick={() => setView('board')}
+              whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
+              className="w-full bg-arena-surface border-2 border-arena-neon rounded-2xl p-4 flex items-center gap-4 hover:shadow-neon transition-all cursor-pointer">
+              <span className="text-4xl flex-shrink-0">🗺️</span>
+              <div className="flex-1 text-right">
+                <p className="text-arena-neon font-black text-lg leading-tight">כיבוש הזירה</p>
+                <p className="text-gray-500 text-xs mt-0.5">לוח 5×5 · תקוף טריטוריות · כבוש הכל</p>
+              </div>
+              <span className="text-arena-neon text-xs font-bold flex-shrink-0">חדש ✨</span>
+            </motion.button>
+
+            {/* Bot game */}
+            <motion.button initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.34 }}
               onClick={() => setView('bot')}
               whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
               className="w-full bg-arena-surface border-2 border-arena-gold rounded-2xl p-4 flex items-center gap-4 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all cursor-pointer">
